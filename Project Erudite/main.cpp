@@ -15,10 +15,9 @@ Project Erudite - Copyright © 2018 Justin Cagle
  * \brief A journey of a thousand miles begins with a single step...
  * \return Return code to the OS
  ***************************************************************************************************************************************/
-#include<SDL.h>
+#include <SDL2/SDL.h>
 #include "Engine.h"
 #include "SplashState.h"
-
 
 int main(int argc, char *argv[])
 {

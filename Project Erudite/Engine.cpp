@@ -11,9 +11,10 @@
 /***************************************************************************************************************************************/
 
 #include "Engine.h"
-#include <glew.h>
+#include <GL/glew.h>
+#include "Window.h"
 
-Engine::Engine() : running_(true), window(nullptr), context(0) {}
+Engine::Engine() : running_(true), window(new Window()) {}
 
 /*!
  ***************************************************************************************************************************************
@@ -21,29 +22,14 @@ Engine::Engine() : running_(true), window(nullptr), context(0) {}
  ***************************************************************************************************************************************/
 void Engine::init()
 {
-  // Initialize SDL systems for use. I'm initializing everything, but specific systems can by individually initialized.
-  SDL_Init(SDL_INIT_EVERYTHING);
 
-  // Set OpenGL's attributes for the SDL window. This must be done prior to the creation of the window.
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-  // Create the window and an OpenGL Context through SDL.
-  window = SDL_CreateWindow("Project: Erudite", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL );
-  SDL_GL_CreateContext(window);
-  
-  // Allow GLEW to use experimental functions and init Glew.
-  glewExperimental = GL_TRUE;
-  glewInit();
 }
 
 /*!
  ***************************************************************************************************************************************
  * \brief Clean up the engine to prepare for game exit.
  ***************************************************************************************************************************************/
-void Engine::shutdown ( )
+void Engine::shutdown ()
 {
   // Check if the stack is empty
   while(!states_.empty ())
@@ -53,10 +39,8 @@ void Engine::shutdown ( )
     states_.pop_back();
   }
   // Do this last. Add any other cleanup above this item.
-  // Delete the context, destroy the window, and shut down SDL.
-  SDL_GL_DeleteContext(context);
-  SDL_DestroyWindow(window);
-  SDL_Quit();
+ 
+  delete window;
 }
 
 /*!
@@ -103,7 +87,7 @@ void Engine::push_state (GameState* state)
  * \brief Shutdown and pop the current state off the stack and resume the state below it. Be careful not to use this if no lower state 
  * exists.
  ***************************************************************************************************************************************/
-void Engine::pop_state ( )
+void Engine::pop_state ()
 {
   // If there is currently an active state...
   if (!states_.empty())
@@ -119,7 +103,7 @@ void Engine::pop_state ( )
  ***************************************************************************************************************************************
  * \brief Allow the state to handle events at it's level.
  ***************************************************************************************************************************************/
-void Engine::handle_events ( )
+void Engine::handle_events ()
 {
   states_.back()->handle_events(this);
 }
@@ -128,7 +112,7 @@ void Engine::handle_events ( )
  ***************************************************************************************************************************************
  * \brief Call the update function of the top level state on the stack.
  ***************************************************************************************************************************************/
-void Engine::update ( )
+void Engine::update ()
 {
   states_.back()->update(this);
 }
@@ -137,7 +121,7 @@ void Engine::update ( )
  ***************************************************************************************************************************************
  * \brief Call the draw function of the top level state on the stack.
  ***************************************************************************************************************************************/
-void Engine::draw ( )
+void Engine::draw ()
 {
   states_.back()->draw(this);
 }
